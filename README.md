@@ -1,6 +1,9 @@
 # libstring for >= C11
 A simple, generics based string library for use with >= C11.
 
+## Installation / usage
+All you need is `libstring.h`. Don't forget to use something like `-std=c11`.
+
 ## Methods
 
 ### Constructors
