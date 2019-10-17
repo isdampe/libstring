@@ -25,7 +25,7 @@ int main(void) {
 	// Auto read a file.
 	FILE *nfh = fopen("/etc/hosts", "r");
 	if (nfh != NULL) {
-		struct string_t host_file = string(fopen("/etc/hosts", "r"));
+		struct string_t host_file = string(nfh);
 		printf("%s\n", host_file.bytes);
 
 		string_free(&host_file);
