@@ -11,6 +11,8 @@ struct string_t {
 	size_t alloc_length;
 };
 
+typedef struct string_t string;
+
 struct string_t string_init_empty(void)
 {
 	struct string_t str;
@@ -51,9 +53,24 @@ struct string_t string_init_file(FILE *fh)
 	return str;
 }
 
+struct string_t string_clone(struct string_t *src)
+{
+	struct string_t str = {
+		.length = src->length,
+		.alloc_length = src->alloc_length
+	};
+
+	str.bytes = malloc(str.alloc_length * sizeof(char));
+	str.bytes[str.length + 1] = '\0';
+	strncpy(str.bytes, src->bytes, src->alloc_length);
+
+	return str;
+}
+
 #define string(...) _Generic((__VA_ARGS__+0), \
 	char*: string_init_str, \
 	FILE*: string_init_file, \
+	struct string_t*: string_clone, \
 	default: string_init_empty)(__VA_ARGS__)
 
 static void string_auto_expand(struct string_t *str)
@@ -94,10 +111,48 @@ void string_append_char(struct string_t *str, char c)
 	str->bytes[str->length] = '\0';
 }
 
+void string_append_int(struct string_t *str, long long n)
+{
+	size_t length = snprintf(NULL, 0, "%lld", n);
+	char *buffer = malloc(length + 1 * sizeof(char));
+	snprintf(buffer, length + 1, "%lld", n);
+
+	string_append_str(str, buffer);
+	free(buffer);
+}
+
+void string_append_uint(struct string_t *str, unsigned long long n)
+{
+	size_t length = snprintf(NULL, 0, "%llu", n);
+	char *buffer = malloc(length + 1 * sizeof(char));
+	snprintf(buffer, length + 1, "%llu", n);
+
+	string_append_str(str, buffer);
+	free(buffer);
+}
+
+void string_append_double(struct string_t *str, double n)
+{
+	size_t length = snprintf(NULL, 0, "%f", n);
+	char *buffer = malloc(length + 1 * sizeof(char));
+	snprintf(buffer, length + 1, "%f", n);
+
+	string_append_str(str, buffer);
+	free(buffer);
+}
+
 #define string_append(str, x) _Generic((str, x), \
 	char*: string_append_str, \
 	char: string_append_char, \
 	FILE*: string_append_file, \
+	long long: string_append_int, \
+	long: string_append_int, \
+	int: string_append_int, \
+	unsigned long long: string_append_uint, \
+	unsigned long: string_append_uint, \
+	unsigned int: string_append_uint, \
+	double: string_append_double, \
+	float: string_append_double, \
 	default: string_append_str)(str, x)
 
 void string_free(struct string_t *str)
