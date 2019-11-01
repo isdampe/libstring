@@ -2,3 +2,5 @@
 bin/*
 examples/*.o
 *.o
+**/*.h
+**/*.c
