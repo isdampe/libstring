@@ -10,7 +10,12 @@ int main(void) {
 	string::append(&name, (24 + 32));
 	std::printf("%s\n", name.bytes);
 
-	string::string_free(&name);
+	string::string surname = string::create();
+	string::append(&surname, &name);
+	std::printf("Surname: %s\n", surname.bytes);
+
+	string::free(&name);
+	string::free(&surname);
 
 	// Append from file.
 	std::FILE *fh = std::fopen("/etc/hosts", "r");
@@ -19,7 +24,7 @@ int main(void) {
 		string::append(&hosts, fh);
 		std::printf("%s\n", hosts.bytes);
 
-		string::string_free(&hosts);
+		string::free(&hosts);
 		std::fclose(fh);
 	}
 
@@ -29,7 +34,7 @@ int main(void) {
 		struct string::string_t host_file = string::create(nfh);
 		std::printf("%s\n", host_file.bytes);
 
-		string::string_free(&host_file);
+		string::free(&host_file);
 		std::fclose(nfh);
 	}
 
@@ -39,9 +44,9 @@ int main(void) {
 	string::append(&second_string, ". And now a decimal number. ");
 	string::append(&second_string, 3.14159265);
 
-	string::string_free(&first_string);
+	string::free(&first_string);
 	std::printf("%s\n", second_string.bytes);
-	string::string_free(&second_string);
+	string::free(&second_string);
 
 	return 0;
 }
