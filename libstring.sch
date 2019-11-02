@@ -221,4 +221,50 @@ void trim(struct string_t *str)
 	trim_right(str);
 }
 
+void uppercase(struct string_t *str)
+{
+	char *s = str->bytes;
+	while (*s) {
+		*s = toupper(*s);
+		s++;
+	}
+}
+
+void lowercase(struct string_t *str)
+{
+	char *s = str->bytes;
+	while (*s) {
+		*s = tolower(*s);
+		s++;
+	}
+}
+
+int find_bytes(struct string_t *str, const char *needle)
+{
+	size_t subject_length = std::strlen(str->bytes);
+	size_t needle_length = std::strlen(needle);
+	int match_idx = 0;
+
+	for (size_t i=0; i<subject_length; ++i) {
+		if (str->bytes[i] == needle[match_idx]) {
+			match_idx++;
+			if (match_idx == (needle_length -1))
+				return i - (match_idx -1);
+		} else {
+			match_idx = 0;
+		}
+	}
+
+	return -1;
+}
+
+int find_string(struct string_t *str, struct string_t *needle)
+{
+	return find_bytes(str, needle->bytes);
+}
+
+#define find(str, x) _Generic((str, x), \
+	char*: find_bytes, \
+	struct string_t*: find_string)(str, x)
+
 #endif

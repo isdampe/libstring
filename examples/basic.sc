@@ -66,5 +66,24 @@ int main(void) {
 	std::printf("--After--: '%s'\n", label_both.bytes);
 	string::free(&label_both);
 
+	string::string upper = string::create("ab");
+	string::uppercase(&upper);
+	std::printf("%s\n", upper.bytes);
+	string::free(&upper);
+
+	string::string lower = string::create("ZXY");
+	string::lowercase(&lower);
+	std::printf("%s\n", lower.bytes);
+	string::free(&lower);
+
+	string::string subject = string::create("It's a small world after all.");
+	int position = string::find(&subject, "small");
+	std::printf("%i\n", position);
+
+	string::string needle = string::create("world");
+	position = string::find(&subject, &needle);
+	std::printf("%i\n", position);
+	string::free(&subject);
+
 	return 0;
 }
