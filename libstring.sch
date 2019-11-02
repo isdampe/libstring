@@ -2,6 +2,7 @@
 #define LIBSTRING_H
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define LIBSTRING_MAX_OVER_ALLOCATE 512
 
@@ -14,6 +15,11 @@ struct string_t {
 };
 
 typedef struct string_t string;
+
+void free(struct string_t *str)
+{
+	std::free(str->bytes);
+}
 
 struct string_t init_empty(void)
 {
@@ -167,9 +173,52 @@ void append_string(struct string_t *dest, struct string_t *src)
 	struct string_t*: append_string, \
 	default: append_str)(str, x)
 
-void free(struct string_t *str)
+void trim_left(struct string_t *str)
 {
-	std::free(str->bytes);
+	size_t str_len = std::strlen(str->bytes);
+	if (str_len < 1)
+		return;
+
+	size_t idx = 0;
+	for (size_t i=0; i<str_len; ++i) {
+		if (! isspace(str->bytes[i])) {
+			idx = i;
+			break;
+		}
+	}
+
+	if (idx > 0) {
+		for (size_t i=0; i < (str_len - idx); ++i)
+			str->bytes[i] = str->bytes[i + idx];
+		str->bytes[str_len - idx] = '\0';
+		auto_expand(str);
+	}
+}
+
+void trim_right(struct string_t *str)
+{
+	size_t str_len = std::strlen(str->bytes);
+	if (str_len < 1)
+		return;
+
+	size_t idx = str_len -1;
+	for (size_t i=str_len -1; i>= 0; --i) {
+		if (! isspace(str->bytes[i])) {
+			idx = i;
+			break;
+		}
+	}
+
+	if (idx < (str_len -1)) {
+		str->bytes[idx +1] = '\0';
+		auto_expand(str);
+	}
+}
+
+void trim(struct string_t *str)
+{
+	trim_left(str);
+	trim_right(str);
 }
 
 #endif

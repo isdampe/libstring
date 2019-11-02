@@ -48,5 +48,23 @@ int main(void) {
 	std::printf("%s\n", second_string.bytes);
 	string::free(&second_string);
 
+	string::string label = string::create("\t\t \n\t\tRichard");
+	std::printf("--Before--: '%s'\n", label.bytes);
+	string::trim_left(&label);
+	std::printf("--After--: '%s'\n", label.bytes);
+	string::free(&label);
+
+	string::string label_right = string::create("Richard  \t\t \t");
+	std::printf("--Before--: '%s'\n", label_right.bytes);
+	string::trim_right(&label_right);
+	std::printf("--After--: '%s'\n", label_right.bytes);
+	string::free(&label_right);
+
+	string::string label_both = string::create("  It's a beautiful world    ");
+	std::printf("--Before--: '%s'\n", label_both.bytes);
+	string::trim(&label_both);
+	std::printf("--After--: '%s'\n", label_both.bytes);
+	string::free(&label_both);
+
 	return 0;
 }
