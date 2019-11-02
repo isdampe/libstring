@@ -20,7 +20,7 @@ struct string_t init_empty(void)
 	struct string_t str;
 	str.length = 0;
 	str.alloc_length = LIBSTRING_MAX_OVER_ALLOCATE + 1;
-	str.bytes = malloc(str.alloc_length);
+	str.bytes = std::malloc(str.alloc_length);
 	str.bytes[0] = '\0';
 
 	return str;
@@ -30,11 +30,11 @@ struct string_t init_str(const char *src)
 {
 	struct string_t str;
 
-	str.length = strlen(src);
+	str.length = std::strlen(src);
 	str.alloc_length = (2 * str.length) % ((2 * str.length) + LIBSTRING_MAX_OVER_ALLOCATE) + 1;
-	str.bytes = malloc(str.alloc_length * sizeof(char));
+	str.bytes = std::malloc(str.alloc_length * sizeof(char));
 	str.bytes[str.length + 1] = '\0';
-	strcpy(str.bytes, src);
+	std::strcpy(str.bytes, src);
 
 	return str;
 }
@@ -43,14 +43,14 @@ struct string_t init_file(FILE *fh)
 {
 	struct string_t str;
 
-	fseek(fh, 0L, SEEK_END);
-	str.length = ftell(fh);
-	fseek(fh, 0L, SEEK_SET);
+	std::fseek(fh, 0L, SEEK_END);
+	str.length = std::ftell(fh);
+	std::fseek(fh, 0L, SEEK_SET);
 
 	str.alloc_length = (2 * str.length) % ((2 * str.length) + LIBSTRING_MAX_OVER_ALLOCATE) + 1;
-	str.bytes = malloc(str.alloc_length * sizeof(char));
+	str.bytes = std::malloc(str.alloc_length * sizeof(char));
 	str.bytes[str.length + 1] = '\0';
-	fread(str.bytes, 1, str.length, fh);
+	std::fread(str.bytes, 1, str.length, fh);
 
 	return str;
 }
@@ -62,9 +62,9 @@ struct string_t clone(struct string_t *src)
 		.alloc_length = src->alloc_length
 	};
 
-	str.bytes = malloc(str.alloc_length * sizeof(char));
+	str.bytes = std::malloc(str.alloc_length * sizeof(char));
 	str.bytes[str.length + 1] = '\0';
-	strncpy(str.bytes, src->bytes, src->alloc_length);
+	std::strncpy(str.bytes, src->bytes, src->alloc_length);
 
 	return str;
 }
@@ -81,27 +81,27 @@ static void auto_expand(struct string_t *str)
 		return;
 
 	str->alloc_length = (2 * str->length) % ((2 * str->length) + LIBSTRING_MAX_OVER_ALLOCATE) + 1;
-	str->bytes = realloc(str->bytes, str->alloc_length * sizeof(char));
+	str->bytes = std::realloc(str->bytes, str->alloc_length * sizeof(char));
 }
 
 void append_str(struct string_t *str, const char *src)
 {
-	size_t src_length = strlen(src);
+	size_t src_length = std::strlen(src);
 	str->length += src_length;
 	auto_expand(str);
-	strncat(str->bytes, src, src_length);
+	std::strncat(str->bytes, src, src_length);
 	str->bytes[str->length] = '\0';
 }
 
 void append_file(struct string_t *str, FILE *fh)
 {
-	fseek(fh, 0L, SEEK_END);
-	size_t src_length = ftell(fh);
-	fseek(fh, 0L, SEEK_SET);
+	std::fseek(fh, 0L, SEEK_END);
+	size_t src_length = std::ftell(fh);
+	std::fseek(fh, 0L, SEEK_SET);
 
 	str->length += src_length;
 	auto_expand(str);
-	fread(str->bytes, 1, src_length, fh);
+	std::fread(str->bytes, 1, src_length, fh);
 	str->bytes[str->length] = '\0';
 }
 
@@ -115,32 +115,41 @@ void append_char(struct string_t *str, char c)
 
 void append_int(struct string_t *str, long long n)
 {
-	size_t length = snprintf(NULL, 0, "%lld", n);
-	char *buffer = malloc(length + 1 * sizeof(char));
-	snprintf(buffer, length + 1, "%lld", n);
+	size_t length = std::snprintf(NULL, 0, "%lld", n);
+	char *buffer = std::malloc(length + 1 * sizeof(char));
+	std::snprintf(buffer, length + 1, "%lld", n);
 
 	append_str(str, buffer);
-	free(buffer);
+	std::free(buffer);
 }
 
 void append_uint(struct string_t *str, unsigned long long n)
 {
 	size_t length = snprintf(NULL, 0, "%llu", n);
 	char *buffer = malloc(length + 1 * sizeof(char));
-	snprintf(buffer, length + 1, "%llu", n);
+	std::snprintf(buffer, length + 1, "%llu", n);
 
 	append_str(str, buffer);
-	free(buffer);
+	std::free(buffer);
 }
 
 void append_double(struct string_t *str, double n)
 {
-	size_t length = snprintf(NULL, 0, "%f", n);
-	char *buffer = malloc(length + 1 * sizeof(char));
-	snprintf(buffer, length + 1, "%f", n);
+	size_t length = std::snprintf(NULL, 0, "%f", n);
+	char *buffer = std::malloc(length + 1 * sizeof(char));
+	std::snprintf(buffer, length + 1, "%f", n);
 
 	append_str(str, buffer);
-	free(buffer);
+	std::free(buffer);
+}
+
+void append_string(struct string_t *dest, struct string_t *src)
+{
+	size_t src_length = std::strlen(src->bytes);
+	dest->length += src_length;
+	auto_expand(dest);
+	std::strncat(dest->bytes, src->bytes, src_length);
+	dest->bytes[dest->length] = '\0';
 }
 
 #define append(str, x) _Generic((str, x), \
@@ -155,11 +164,12 @@ void append_double(struct string_t *str, double n)
 	unsigned int: append_uint, \
 	double: append_double, \
 	float: append_double, \
+	struct string_t*: append_string, \
 	default: append_str)(str, x)
 
-void string_free(struct string_t *str)
+void free(struct string_t *str)
 {
-	free(str->bytes);
+	std::free(str->bytes);
 }
 
 #endif
