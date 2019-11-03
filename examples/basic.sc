@@ -103,7 +103,7 @@ int main(void) {
 
 	string::string ss = string::create("Hello world it's great");
 	printf("%s\n", ss.bytes);
-	string::substr(&ss, 0, 7);
+	string::subset(&ss, 0, 7);
 	printf("%s\n", ss.bytes);
 
 	string::free(&ss);
