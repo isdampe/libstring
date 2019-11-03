@@ -113,7 +113,7 @@ void append_file(struct string_t *str, FILE *fh)
 
 void append_char(struct string_t *str, char c)
 {
-	str->length++;
+	str->length += sizeof(char);
 	auto_expand(str);
 	str->bytes[str->length -1] = c;
 	str->bytes[str->length] = '\0';
@@ -126,6 +126,8 @@ void append_int(struct string_t *str, long long n)
 	std::snprintf(buffer, length + 1, "%lld", n);
 
 	append_str(str, buffer);
+	str->length = std::strlen(str->bytes);
+
 	std::free(buffer);
 }
 
@@ -136,6 +138,8 @@ void append_uint(struct string_t *str, unsigned long long n)
 	std::snprintf(buffer, length + 1, "%llu", n);
 
 	append_str(str, buffer);
+	str->length = std::strlen(str->bytes);
+
 	std::free(buffer);
 }
 
@@ -146,6 +150,8 @@ void append_double(struct string_t *str, double n)
 	std::snprintf(buffer, length + 1, "%f", n);
 
 	append_str(str, buffer);
+	str->length = std::strlen(str->bytes);
+
 	std::free(buffer);
 }
 
@@ -191,6 +197,7 @@ void trim_left(struct string_t *str)
 		for (size_t i=0; i < (str_len - idx); ++i)
 			str->bytes[i] = str->bytes[i + idx];
 		str->bytes[str_len - idx] = '\0';
+		str->length = std::strlen(str->bytes);
 		auto_expand(str);
 	}
 }
@@ -211,6 +218,7 @@ void trim_right(struct string_t *str)
 
 	if (idx < (str_len -1)) {
 		str->bytes[idx +1] = '\0';
+		str->length = std::strlen(str->bytes);
 		auto_expand(str);
 	}
 }
