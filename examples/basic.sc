@@ -83,7 +83,7 @@ int main(void) {
 	string::string needle = string::create("world");
 	position = string::find(&subject, &needle);
 	std::printf("%i\n", position);
-	string::free(&subject);
+	string::free(&needle);
 
 	string::string insensitive = string::create("Hello there Richard");
 	position = string::find(&insensitive, "richard");
@@ -98,6 +98,8 @@ int main(void) {
 	std::printf("Z: %i\n", position);
 
 	string::free(&insensitive);
+	string::free(&n);
+	string::free(&subject);
 
 	return 0;
 }
