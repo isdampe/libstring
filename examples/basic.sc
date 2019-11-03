@@ -85,5 +85,19 @@ int main(void) {
 	std::printf("%i\n", position);
 	string::free(&subject);
 
+	string::string insensitive = string::create("Hello there Richard");
+	position = string::find(&insensitive, "richard");
+	std::printf("%i\n", position);
+	position = string::find_insensitive(&insensitive, "richard");
+	std::printf("%i\n", position);
+
+	string::string n = string::create("There");
+	position = string::find(&insensitive, &n);
+	std::printf("T: %i\n", position);
+	position = string::find_insensitive(&insensitive, &n);
+	std::printf("Z: %i\n", position);
+
+	string::free(&insensitive);
+
 	return 0;
 }

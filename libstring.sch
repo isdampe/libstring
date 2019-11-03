@@ -267,4 +267,40 @@ int find_string(struct string_t *str, struct string_t *needle)
 	char*: find_bytes, \
 	struct string_t*: find_string)(str, x)
 
+int find_bytes_insensitive(struct string_t *str, const char *needle)
+{
+	struct string_t src_buffer = clone(str);
+	uppercase(&src_buffer);
+
+	struct string_t needle_buffer = init_str(needle);
+	uppercase(&needle_buffer);
+
+	int result = find_string(&src_buffer, &needle_buffer);
+
+	free(&src_buffer);
+	free(&needle_buffer);
+
+	return result;
+}
+
+int find_string_insensitive(struct string_t *str, struct string_t *needle)
+{
+	struct string_t src_buffer = clone(str);
+	uppercase(&src_buffer);
+
+	struct string_t needle_buffer = clone(needle);
+	uppercase(&needle_buffer);
+
+	int result = find_string(&src_buffer, &needle_buffer);
+
+	free(&src_buffer);
+	free(&needle_buffer);
+
+	return result;
+}
+
+#define find_insensitive(str, x) _Generic((str, x), \
+	char*: find_bytes_insensitive, \
+	struct string_t*: find_string_insensitive)(str, x)
+
 #endif
