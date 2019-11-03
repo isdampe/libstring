@@ -311,4 +311,22 @@ int find_string_insensitive(struct string_t *str, struct string_t *needle)
 	char*: find_bytes_insensitive, \
 	struct string_t*: find_string_insensitive)(str, x)
 
+void substr(struct string_t *str, const size_t start, const size_t end)
+{
+	int str_len = std::strlen(str->bytes);
+	if (start >= (str_len -1))
+		return;
+
+	if (end < start)
+		return;
+
+	for (size_t i=0; i<((str_len - end) -1); ++i)
+		str->bytes[i] = str->bytes[i + start];
+
+	str->bytes[(end - start)] = '\0';
+	str->length = std::strlen(str->bytes);
+
+	auto_expand(str);
+}
+
 #endif

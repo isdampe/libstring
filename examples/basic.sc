@@ -101,5 +101,12 @@ int main(void) {
 	string::free(&n);
 	string::free(&subject);
 
+	string::string ss = string::create("Hello world it's great");
+	printf("%s\n", ss.bytes);
+	string::substr(&ss, 0, 7);
+	printf("%s\n", ss.bytes);
+
+	string::free(&ss);
+
 	return 0;
 }
