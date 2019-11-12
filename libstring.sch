@@ -261,7 +261,7 @@ int find_bytes(struct string_t *str, const char *needle)
 	for (size_t i=0; i<subject_length; ++i) {
 		if (str->bytes[i] == needle[match_idx]) {
 			match_idx++;
-			if (match_idx == (needle_length -1))
+			if (match_idx == (needle_length))
 				return i - (match_idx -1);
 		} else {
 			match_idx = 0;
@@ -339,6 +339,47 @@ int subset(struct string_t *str, const long start, long length)
 	str->bytes[length] = '\0';
 	str->length = strlen(str->bytes);
 	auto_resize(str);
+}
+
+void replace(struct string_t *str, const char *subject, const char *rep)
+{
+	size_t strl = strlen(str->bytes), subl = strlen(subject);
+	size_t *indices = malloc(strl * sizeof(size_t));
+	struct string_t buffer = clone(str);
+	int res, idx = 0, precount = 0;
+
+	while ((res = find_bytes(&buffer, subject)) != -1) {
+		indices[idx++] = precount + res;
+		subset(&buffer, res + subl, strl);
+		strl = strlen(buffer.bytes);
+		precount += res + subl;
+	}
+
+	struct string_t cat = create();
+	int prev_idx = 0;
+	for (int i=0; i<idx; ++i) {
+		struct string_t lb = clone(str);
+		subset(&lb, prev_idx, (indices[i] - prev_idx));
+		append(&cat, lb.bytes);
+		append(&cat, rep);
+
+		prev_idx = indices[i] + subl;
+
+		string::free(&lb);
+	}
+	struct string_t rb = clone(str);
+	subset(&rb, indices[idx -1] + subl, strl);
+	if (strlen(rb.bytes) > 0)
+		append(&cat, rb.bytes);
+	string::free(&rb);
+
+	str->bytes[0] = '\0';
+	str->length = 0;
+	append(str, cat.bytes);
+
+	string::free(&cat);
+	std::free(indices);
+	free(&buffer);
 }
 
 #endif
