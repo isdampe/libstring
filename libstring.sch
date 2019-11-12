@@ -282,32 +282,26 @@ int find_string(struct string_t *str, struct string_t *needle)
 
 int find_bytes_insensitive(struct string_t *str, const char *needle)
 {
-	struct string_t src_buffer = clone(str);
+	autofree string::string src_buffer = clone(str);
 	uppercase(&src_buffer);
 
-	struct string_t needle_buffer = init_str(needle);
+	autofree string::string needle_buffer = init_str(needle);
 	uppercase(&needle_buffer);
 
 	int result = find_string(&src_buffer, &needle_buffer);
-
-	free(&src_buffer);
-	free(&needle_buffer);
 
 	return result;
 }
 
 int find_string_insensitive(struct string_t *str, struct string_t *needle)
 {
-	struct string_t src_buffer = clone(str);
+	autofree string::string src_buffer = clone(str);
 	uppercase(&src_buffer);
 
-	struct string_t needle_buffer = clone(needle);
+	autofree string::string needle_buffer = clone(needle);
 	uppercase(&needle_buffer);
 
 	int result = find_string(&src_buffer, &needle_buffer);
-
-	free(&src_buffer);
-	free(&needle_buffer);
 
 	return result;
 }
@@ -345,7 +339,7 @@ void replace(struct string_t *str, const char *subject, const char *rep)
 {
 	size_t strl = strlen(str->bytes), subl = strlen(subject);
 	size_t *indices = malloc(strl * sizeof(size_t));
-	struct string_t buffer = clone(str);
+	autofree string::string buffer = clone(str);
 	int res, idx = 0, precount = 0;
 
 	while ((res = find_bytes(&buffer, subject)) != -1) {
@@ -355,31 +349,27 @@ void replace(struct string_t *str, const char *subject, const char *rep)
 		precount += res + subl;
 	}
 
-	struct string_t cat = create();
+	autofree string::string cat = create();
 	int prev_idx = 0;
 	for (int i=0; i<idx; ++i) {
-		struct string_t lb = clone(str);
+		autofree string::string lb = clone(str);
 		subset(&lb, prev_idx, (indices[i] - prev_idx));
 		append(&cat, lb.bytes);
 		append(&cat, rep);
 
 		prev_idx = indices[i] + subl;
-
-		string::free(&lb);
 	}
-	struct string_t rb = clone(str);
+
+	autofree string::string rb = clone(str);
 	subset(&rb, indices[idx -1] + subl, strl);
 	if (strlen(rb.bytes) > 0)
 		append(&cat, rb.bytes);
-	string::free(&rb);
 
 	str->bytes[0] = '\0';
 	str->length = 0;
 	append(str, cat.bytes);
 
-	string::free(&cat);
 	std::free(indices);
-	free(&buffer);
 }
 
 #endif
