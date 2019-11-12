@@ -1,13 +1,11 @@
-CXX = gcc
-src = $(wildcard examples/*.c)
-obj = $(src:.c=.o)
-
-LDFLAGS = -std=c11 -O3
-OSFLAGS = -lm
-
-examples: $(obj)
-	@mkdir -p bin
-	$(CXX) -o bin/$@ $^ $(LDFLAGS) $(OSFLAGS)
+libstring: $(libstring.sch)
+	sc -i "./libstring.sch"
 
 clean:
-	rm $(obj)
+	rm "./libstring.h"
+
+install:
+	cp "./libstring.h" "/usr/local/include/libstring.h"
+
+remove:
+	rm "/usr/local/include/libstring.h"
