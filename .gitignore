@@ -4,3 +4,5 @@ examples/*.o
 *.o
 **/*.h
 **/*.c
+**/*.json
+**/*.translated
