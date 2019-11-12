@@ -1,4 +1,4 @@
-# libstring for >= SC11 
+# libstring for >= SC11
 A simple, generics based string library for use with >= SC11.
 
 ## Installation / usage
@@ -37,4 +37,20 @@ string::append(&name, (char)'.');
 
 // From file
 string::append(&name, fh);
+```
+
+### Installation
+First, you need SC installed. Then simply
+
+```bash
+git clone https://github.com/isdampe/libstring
+cd libstring
+make
+sudo make install
+```
+
+And from there-on-in, you can use
+
+```c
+#include <libstring.h>
 ```
