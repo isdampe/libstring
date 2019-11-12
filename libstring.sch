@@ -6,6 +6,8 @@
 
 #define LIBSTRING_MAX_OVER_ALLOCATE 512
 
+#define LIBSTRING_ERR_OUT_OF_BOUNDS 0x1
+
 namespace string;
 
 struct string_t {
@@ -81,12 +83,15 @@ struct string_t clone(struct string_t *src)
 	struct string_t*: clone, \
 	default: init_empty)(__VA_ARGS__)
 
-static void auto_expand(struct string_t *str)
+static void auto_resize(struct string_t *str)
 {
-	if (str->length < str->alloc_length)
-		return;
+	size_t new_size = (2 * str->length) % ((2 * str->length) + LIBSTRING_MAX_OVER_ALLOCATE) + 1;
+	if (str->length < str->alloc_length) {
+		if (str->alloc_length < new_size)
+			return;
+	}
 
-	str->alloc_length = (2 * str->length) % ((2 * str->length) + LIBSTRING_MAX_OVER_ALLOCATE) + 1;
+	str->alloc_length = new_size;
 	str->bytes = std::realloc(str->bytes, str->alloc_length * sizeof(char));
 }
 
@@ -94,7 +99,7 @@ void append_str(struct string_t *str, const char *src)
 {
 	size_t src_length = std::strlen(src);
 	str->length += src_length;
-	auto_expand(str);
+	auto_resize(str);
 	std::strncat(str->bytes, src, src_length);
 	str->bytes[str->length] = '\0';
 }
@@ -106,7 +111,7 @@ void append_file(struct string_t *str, FILE *fh)
 	std::fseek(fh, 0L, SEEK_SET);
 
 	str->length += src_length;
-	auto_expand(str);
+	auto_resize(str);
 	std::fread(str->bytes, 1, src_length, fh);
 	str->bytes[str->length] = '\0';
 }
@@ -114,7 +119,7 @@ void append_file(struct string_t *str, FILE *fh)
 void append_char(struct string_t *str, char c)
 {
 	str->length += sizeof(char);
-	auto_expand(str);
+	auto_resize(str);
 	str->bytes[str->length -1] = c;
 	str->bytes[str->length] = '\0';
 }
@@ -159,7 +164,7 @@ void append_string(struct string_t *dest, struct string_t *src)
 {
 	size_t src_length = std::strlen(src->bytes);
 	dest->length += src_length;
-	auto_expand(dest);
+	auto_resize(dest);
 	std::strncat(dest->bytes, src->bytes, src_length);
 	dest->bytes[dest->length] = '\0';
 }
@@ -198,7 +203,7 @@ void trim_left(struct string_t *str)
 			str->bytes[i] = str->bytes[i + idx];
 		str->bytes[str_len - idx] = '\0';
 		str->length = std::strlen(str->bytes);
-		auto_expand(str);
+		auto_resize(str);
 	}
 }
 
@@ -219,7 +224,7 @@ void trim_right(struct string_t *str)
 	if (idx < (str_len -1)) {
 		str->bytes[idx +1] = '\0';
 		str->length = std::strlen(str->bytes);
-		auto_expand(str);
+		auto_resize(str);
 	}
 }
 
@@ -311,22 +316,22 @@ int find_string_insensitive(struct string_t *str, struct string_t *needle)
 	char*: find_bytes_insensitive, \
 	struct string_t*: find_string_insensitive)(str, x)
 
-void subset(struct string_t *str, const size_t start, const size_t end)
+int subset(struct string_t *str, const long start, long length)
 {
-	int str_len = std::strlen(str->bytes);
-	if (start >= (str_len -1))
-		return;
+	int str_len = strlen(str->bytes);
+	if (start < 0 || length < 0 || start > (str_len -1))
+		return LIBSTRING_ERR_OUT_OF_BOUNDS;
 
-	if (end < start)
-		return;
+	if (length > (str_len - start))
+		length = str_len - start;
 
-	for (size_t i=0; i<((str_len - end) -1); ++i)
+	for (int i=0; i<length; ++i) {
 		str->bytes[i] = str->bytes[i + start];
+	}
 
-	str->bytes[(end - start)] = '\0';
-	str->length = std::strlen(str->bytes);
-
-	auto_expand(str);
+	str->bytes[length] = '\0';
+	str->length = strlen(str->bytes);
+	auto_resize(str);
 }
 
 #endif
