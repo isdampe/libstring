@@ -316,6 +316,13 @@ int find_string_insensitive(struct string_t *str, struct string_t *needle)
 	char*: find_bytes_insensitive, \
 	struct string_t*: find_string_insensitive)(str, x)
 
+/**
+ * Reduces the given string to a substring.
+ * @param  str    The subject string.
+ * @param  start  The starting position for the reduced subset.
+ * @param  length The length of the new subset (forwards from the starting position)
+ * @return int    The relevant error code, or 0.
+ **/
 int subset(struct string_t *str, const long start, long length)
 {
 	int str_len = strlen(str->bytes);
